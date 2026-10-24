@@ -5,7 +5,6 @@ import Footer from "../footer/Footer.tsx";
 import MarqueeComponent from "./marquee/MarqueeComponent.tsx";
 import WhoWeHelp from "./WhoWeHelp.tsx";
 import OurSolution from "./OurSolution.tsx";
-import OurServices from "./OurServices.tsx";
 
 const LandingPageComponent: React.FC = () => {
     return (
@@ -24,9 +23,6 @@ const LandingPageComponent: React.FC = () => {
 
             {/* Accredited Diagnostic & Hospital Network Partners */}
             <MarqueeComponent />
-
-            {/* All Preventive Health Packages & Services */}
-            <OurServices />
 
             {/* Footer */}
             <Footer />

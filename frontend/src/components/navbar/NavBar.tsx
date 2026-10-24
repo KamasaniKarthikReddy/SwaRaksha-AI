@@ -97,12 +97,6 @@ export function NavBar() {
                     >
                         Consultation
                     </a>
-                    <a
-                        href="/services"
-                        className="hover:text-black transition-colors"
-                    >
-                        Services
-                    </a>
                 </nav>
 
                 {/* Right Action Buttons */}
@@ -180,12 +174,6 @@ export function NavBar() {
                             className="text-left py-1 hover:text-purple-700"
                         >
                             Doctor Consultation
-                        </a>
-                        <a
-                            href="/services"
-                            className="text-left py-1 hover:text-purple-700"
-                        >
-                            All Services
                         </a>
                         <a
                             href="/consultation"
