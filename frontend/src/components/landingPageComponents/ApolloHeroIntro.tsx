@@ -236,7 +236,7 @@ const ApolloHeroIntro: React.FC = () => {
 
                         {/* Card 3: WhatsApp Booking */}
                         <a
-                            href="https://wa.me/9104069467075?text=Hi%20Apollo%2C%20I%20would%20like%20to%20book%20a%20test%20online."
+                            href="https://wa.me/9104069467075?text=Hi%20SwaRaksha%20AI%2C%20I%20would%20like%20to%20book%20a%20test%20online."
                             target="_blank"
                             rel="noreferrer"
                             className="flex items-center justify-between p-4 sm:p-5 rounded-2xl border border-gray-200/90 hover:border-[#2e7d32]/40 hover:shadow-md transition-all duration-200 bg-white group cursor-pointer"
