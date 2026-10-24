@@ -6,7 +6,7 @@ import { BACKEND_URL } from '../services/api.ts';
 import '../../../CSS/ButtonComponent.css';
 import './navbar.css';
 
-type UserRole = "patient" | "doctor" | null;
+type UserRole = "patient" | "doctor" | "noRole" | null;
 
 interface NavButtonProps {
     to: string;
@@ -123,7 +123,7 @@ export function NavBar({ isPatient, isDoctor, isLogout }: NavBarProps) {
                                     </li>
                                 </>
                             )}
-                            {userRole === null && (
+                            {(userRole === null || userRole === "noRole") && (
                                 <>
                                     <li>
                                         <NavButton to="/consultation/patient">Patient</NavButton>

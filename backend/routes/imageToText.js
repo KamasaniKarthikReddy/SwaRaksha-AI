@@ -1,114 +1,100 @@
 const express = require("express");
-let { v4: uuid } = require("uuid");
+const { v4: uuid } = require("uuid");
 const run = require("../chatAI/chat_api");
 const { createWorker } = require('tesseract.js');
-
-require("dotenv").config();
 const router = express.Router();
 const multer = require("multer");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
+const cors = require("cors");
+const corsConfig = require("../cors/corsConfig");
 
-// AWS.config.update({
-//   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-//   region: process.env.AWS_REGION,
-// });
+router.use(cors(corsConfig));
 
-// Create a new Textract instance
-// const textract = new AWS.Textract();
+const uploadsDir = path.join(__dirname, "../uploads");
+if (!fs.existsSync(uploadsDir)) {
+    try {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    } catch (e) {
+        console.error("Could not create uploads directory:", e.message);
+    }
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "./");
+    const dest = fs.existsSync(uploadsDir) ? uploadsDir : "./";
+    cb(null, dest);
   },
   filename: (req, file, cb) => {
-    let newUUID = uuid();
-    req.fileUUID = newUUID;
-    // let x = `${newUUID}-${file.originalname}`;
-    // console.log(x);
-    // const fileExtension = path.extname(file.originalname).toLowerCase();
-    // console.log(fileExtension);
-    cb(null, `${newUUID}-${file.originalname}`);
+    const uniqueName = `${uuid()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    cb(null, uniqueName);
   },
 });
-router.use(express.static(path.join(__dirname, "public")));
+
 router.use(bodyParser.json({ limit: "50mb" }));
 router.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 router.get("/", (req, res) => {
-  res.send("Image to Text api up and running :)");
+  res.json({ message: "Image to Text API up and running :)" });
 });
 
 const fileFilter = (req, file, cb) => {
-  try {
-    // will add more in future :)
-    if (
-      file.mimetype === "image/jpeg" ||
-      file.mimetype === "image/jpg" ||
-      file.mimetype === "image/png"
-    ) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only JPEG,JPG and  PNG files are allowed!"), false);
-    }
-  } catch (err) {
-    console.log(err);
+  if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/webp"
+  ) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only JPEG, JPG, PNG and WebP files are allowed!"), false);
   }
 };
-const upload = multer({ storage: storage, fileFilter: fileFilter });
+
+const upload = multer({ 
+    storage: storage, 
+    fileFilter: fileFilter,
+    limits: { fileSize: 15 * 1024 * 1024 } 
+});
 
 router.post("/textract", upload.single("uploaded_files"), async (req, res) => {
-  console.log("Heavy lifting in progress...");
+  if (!req.file) {
+      return res.status(400).json({ error: "No image file uploaded" });
+  }
+
+  const filePath = req.file.path;
+  console.log(`Processing medical report image: ${filePath}`);
 
   try {
-    console.log(`${req.fileUUID}-${req.file.originalname}`);
-    let fullPath = `${req.fileUUID}-${req.file.originalname}`;
-
-    // console.log(fullPath);
-    const fileBuffer = fs.readFileSync(fullPath);
-
-    // const params = {
-    //   Document: {
-    //     Bytes: fileBuffer,
-    //   },
-    // };
-    // const data = await textract.detectDocumentText(params).promise();
-    //
-
     const worker = await createWorker('eng');
-    const { data: { text } } = await worker.recognize(fullPath);
+    const { data: { text } } = await worker.recognize(filePath);
     await worker.terminate();
 
-    // Delete the file after processing
-    fs.unlinkSync(fullPath);
+    console.log(`OCR extraction complete. Extracted ${text?.length || 0} characters.`);
 
-    // const summaryReport = data.Blocks.filter(
-    //   (block) => block.BlockType === "LINE"
-    // ).map((block) => block.Text);
-    //
-    // let promptValue =
-    //   "Derive a conclusion out of these keywords and also provide a summary.";
-    // summaryReport.forEach((item) => {
-    //   promptValue += item;
-    // });
-    // let summaryData = await run(promptValue);
-    // // console.log(summaryData);
-    // return res.status(200).send({
-    //   summaryData,
-    // });
+    let summaryData = "";
+    if (text && text.trim().length > 0) {
+        const prompt = `You are a medical assistant. Analyze the following medical report text and provide a comprehensive structured summary in Markdown format with sections for **Patient/Report Overview**, **Key Findings & Values**, **Interpretation**, and **Recommended Next Steps**:\n\n${text}`;
+        summaryData = await run(prompt);
+    } else {
+        summaryData = `### Medical Report Summary\n\nNo readable text could be extracted from this image. Please ensure the document is clear, well-lit, and in high resolution.`;
+    }
 
-    // Process the extracted text with Google's Generative AI
-    const prompt = `Analyze the following medical report and provide a summary:\n\n${text}`;
-    const summaryData = await run(prompt);
-
-    res.json({ summaryData });
+    res.json({ summaryData, rawText: text });
   } catch (err) {
-    console.error("Error:", err.message);
-    return res.status(200).send({
-      summaryData:
-        "Sorry, I am unable to extract text from the image. Please try again.",
+    console.error("Error processing medical image:", err.message);
+    res.status(200).json({
+      summaryData: `### Report Processing Notice\n\nWe encountered an issue reading the text: ${err.message}. Please verify the file is a valid medical report image and try again.`,
     });
+  } finally {
+    try {
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+    } catch (cleanupErr) {
+        console.warn("Failed to delete temp file:", cleanupErr.message);
+    }
   }
 });
 

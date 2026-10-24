@@ -87,11 +87,16 @@ const services = [
 ];
 const OurServices = () => {
     return (
-        <div className="flex justify-center items-center flex-col pt-24 px-4">
-            <h3 className="h3">Our Services</h3>
-            <h1 className="h1 tracking-wider py-4 text-center text-5xl sm:text-5xl md:text-5xl lg:text-6xl">
+        <section id="services" className="flex justify-center items-center flex-col pt-24 px-4">
+            <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold bg-purple-100/70 text-purple-800 uppercase tracking-wider mb-2">
+                What's Included
+            </span>
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-[#111827] tracking-tight py-3 text-center">
                 Smart Health Solutions
             </h1>
+            <p className="text-gray-500 text-sm sm:text-base max-w-xl text-center mb-6">
+                From real-time symptom triage to AI report extraction and telehealth consultations.
+            </p>
             <div className=" max-w-[calc(100%-2rem)] md:max-w-5xl py-10">
                 <BentoGrid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:auto-rows-[12rem] gap-4">
                     {services.map((service) => (
@@ -103,7 +108,7 @@ const OurServices = () => {
                     ))}
                 </BentoGrid>
             </div>
-        </div>
+        </section>
     );
 };
 

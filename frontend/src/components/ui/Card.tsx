@@ -1,35 +1,51 @@
-import ButtonComponent from "./ButtonComponent.tsx";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const Card = ({ svg, heading, body }) => {
+interface CardProps {
+    svg: React.ReactNode;
+    heading: string;
+    body: string;
+    onClick?: () => void;
+}
+
+const Card: React.FC<CardProps> = ({ svg, heading, body, onClick }) => {
     const navigate = useNavigate();
 
     const handleClick = () => {
-        navigate('/survey')
-    }
+        if (onClick) {
+            onClick();
+        } else {
+            navigate('/survey');
+        }
+    };
 
     return (
-        <div className="flex w-full">
-            <div className="w-full max-w-lg p-6 sm:p-8 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                <div className="flex justify-end py-4">
-                    {svg}
+        <div className="bg-white rounded-2xl p-7 sm:p-9 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] border border-purple-100/50 flex flex-col justify-between h-full transition-all duration-300 hover:shadow-[0_12px_32px_-6px_rgba(100,50,150,0.12)] hover:-translate-y-1">
+            <div>
+                <div className="flex items-start justify-between gap-4 mb-4">
+                    <h2 className="text-2xl sm:text-[1.75rem] font-semibold text-[#181D27] tracking-tight leading-snug">
+                        {heading}
+                    </h2>
+                    <div className="flex-shrink-0 pt-0.5">
+                        {svg}
+                    </div>
                 </div>
 
-                <h2 className="h2 py-2 text-4xl sm:text-4xl">
-                    {heading}
-                </h2>
-                <p className="mb-3 font-normal text-gray-500 dark:text-gray-400 py-2 tracking-wider text-sm sm:text-base">
+                <p className="text-[#535862] text-sm sm:text-[15px] leading-relaxed mb-6 font-normal">
                     {body}
                 </p>
+            </div>
 
-                <div className="py-4 sm:py-6">
-                    <ButtonComponent transparent={true} onClick={handleClick}>
-                        Learn More
-                    </ButtonComponent>
-                </div>
+            <div className="pt-2">
+                <button
+                    onClick={handleClick}
+                    className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-[#0D9488] text-[#0D9488] hover:bg-[#0D9488] hover:text-white font-medium text-sm transition-all duration-200"
+                >
+                    Learn More
+                </button>
             </div>
         </div>
     );
-}
+};
 
 export default Card;

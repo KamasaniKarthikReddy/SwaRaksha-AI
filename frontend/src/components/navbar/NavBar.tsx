@@ -1,26 +1,34 @@
 import { useState, useEffect } from 'react';
-import Logo from "../../../public/logo/Logo.tsx";
-import '../../CSS/NavBar.css';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Sparkles, Menu, X, ArrowUpRight } from "lucide-react";
 
 export function NavBar() {
     const [scrolled, setScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleStartSurvey = () => {
         navigate('/survey');
         setIsMenuOpen(false);
     };
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
+    const handleScrollTo = (id: string) => {
+        setIsMenuOpen(false);
+        if (location.pathname !== '/') {
+            navigate('/#' + id);
+            return;
+        }
+        const el = document.getElementById(id);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     };
 
     useEffect(() => {
         const handleScroll = () => {
             const offset = window.scrollY;
-            if (offset > 50) {
+            if (offset > 20) {
                 setScrolled(true);
             } else {
                 setScrolled(false);
@@ -33,101 +41,161 @@ export function NavBar() {
     }, []);
 
     return (
-        <nav
-            className={`fixed w-full z-20 top-0 start-0 transition-colors duration-200 ${
-                scrolled ? 'scrolled' : ''
+        <header
+            className={`fixed w-full z-50 top-0 start-0 transition-all duration-300 ${
+                scrolled
+                    ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 py-3'
+                    : 'bg-white/80 backdrop-blur-xs py-4 border-b border-transparent'
             }`}
-            id="navbar-sticky"
         >
-            <div className="max-w-screen-2xl w-[95%] flex flex-wrap items-center justify-between mx-auto p-1">
-                <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <Logo />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                {/* Brand Logo matching Cent typography */}
+                <a href="/" className="flex items-center gap-2 group">
+                    <span className="text-3xl font-extrabold tracking-tight text-gray-950 font-poppins group-hover:text-purple-700 transition-colors">
+                        Cent
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 tracking-wider uppercase">
+                        <Sparkles className="w-2.5 h-2.5" /> SwaRaksha
+                    </span>
                 </a>
-                <div className="flex lg:order-2">
+
+                {/* Desktop Navigation Links */}
+                <nav className="hidden lg:flex items-center space-x-7 text-sm font-medium text-gray-600">
                     <button
-                        type="button"
-                        className="lg:hidden inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                        onClick={toggleMenu}
-                        aria-controls="navbar-sticky"
-                        aria-expanded={isMenuOpen}
+                        onClick={() => handleScrollTo('included')}
+                        className="hover:text-black transition-colors"
                     >
-                        <span className="sr-only">Toggle menu</span>
-                        <svg
-                            className="w-5 h-5"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 17 14"
-                        >
-                            <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M1 1h15M1 7h15M1 13h15"
-                            />
-                        </svg>
+                        What's Included
                     </button>
                     <button
-                        type="button"
-                        className="hidden lg:inline-block text-white bg-[#175134] hover:bg-[#0f3a24] font-medium rounded-xl text-base px-6 py-2 text-center dark:bg-[#175134] dark:hover:bg-[#0f3a24] dark:focus:ring-[#143c2d]"
+                        onClick={() => handleScrollTo('science')}
+                        className="hover:text-black transition-colors"
+                    >
+                        The Science
+                    </button>
+                    <button
+                        onClick={() => handleScrollTo('conditions')}
+                        className="hover:text-black transition-colors"
+                    >
+                        300+ Conditions
+                    </button>
+                    <button
+                        onClick={() => handleScrollTo('how-it-works')}
+                        className="hover:text-black transition-colors"
+                    >
+                        How It Works
+                    </button>
+                    <button
+                        onClick={() => handleScrollTo('app')}
+                        className="hover:text-black transition-colors"
+                    >
+                        Mobile App
+                    </button>
+                    <a
+                        href="/consultation"
+                        className="hover:text-black transition-colors"
+                    >
+                        Consultation
+                    </a>
+                    <a
+                        href="/services"
+                        className="hover:text-black transition-colors"
+                    >
+                        Services
+                    </a>
+                </nav>
+
+                {/* Right Action Buttons */}
+                <div className="hidden lg:flex items-center space-x-6">
+                    <a
+                        href="/consultation"
+                        className="text-sm font-semibold text-gray-700 hover:text-black transition-colors"
+                    >
+                        Login
+                    </a>
+                    <button
                         onClick={handleStartSurvey}
+                        className="bg-black hover:bg-gray-800 text-white text-sm font-bold px-6 py-2.5 rounded-full shadow-md transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-1.5"
+                    >
+                        Get Started
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                    </button>
+                </div>
+
+                {/* Mobile Hamburger Toggle */}
+                <div className="lg:hidden flex items-center gap-3">
+                    <button
+                        onClick={handleStartSurvey}
+                        className="bg-black text-white text-xs font-bold px-4 py-2 rounded-full"
                     >
                         Get Started
                     </button>
-                </div>
-                <div
-                    className={`items-center justify-between w-full lg:flex lg:w-auto lg:order-1 pr-24 ${
-                        isMenuOpen ? 'block' : 'hidden'
-                    }`}
-                    id="navbar-sticky"
-                >
-                    <ul className="flex flex-col p-4 lg:p-0 mt-4 font-medium rounded-lg lg:space-x-8 rtl:space-x-reverse lg:flex-row lg:mt-0 bg-transparent">
-                        <li>
-                            <a
-                                href="#"
-                                className={`nav-link block py-2 px-3 rounded ${
-                                    scrolled ? 'text-gray-900 hover:text-black' : 'text-gray-500 hover:text-black'
-                                } font-poppins`}
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                About us
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="/services"
-                                className={`nav-link block py-2 px-3 rounded ${
-                                    scrolled ? 'text-gray-900 hover:text-black' : 'text-gray-500 hover:text-black'
-                                } font-poppins`}
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Services
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#"
-                                className={`nav-link block py-2 px-3 rounded ${
-                                    scrolled ? 'text-gray-900 hover:text-black' : 'text-gray-500 hover:text-black'
-                                } font-poppins`}
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                For business
-                            </a>
-                        </li>
-                        <li className="lg:hidden">
-                            <button
-                                type="button"
-                                className="w-full text-white bg-[#212aa4] hover:bg-[#0f3a24] font-medium rounded-xl text-base px-6 py-2 text-center dark:bg-[#175134] dark:hover:bg-[#062165] dark:focus:ring-[#20143c]"
-                                onClick={handleStartSurvey}
-                            >
-                                Get Started
-                            </button>
-                        </li>
-                    </ul>
+                    <button
+                        type="button"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg focus:outline-none"
+                        aria-label="Toggle Navigation"
+                    >
+                        {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                    </button>
                 </div>
             </div>
-        </nav>
+
+            {/* Mobile Dropdown Menu */}
+            {isMenuOpen && (
+                <div className="lg:hidden bg-white border-b border-gray-200 px-6 py-5 space-y-4 shadow-xl">
+                    <div className="flex flex-col space-y-3 text-base font-medium text-gray-800">
+                        <button
+                            onClick={() => handleScrollTo('included')}
+                            className="text-left py-1 hover:text-purple-700"
+                        >
+                            What's Included
+                        </button>
+                        <button
+                            onClick={() => handleScrollTo('science')}
+                            className="text-left py-1 hover:text-purple-700"
+                        >
+                            The Science
+                        </button>
+                        <button
+                            onClick={() => handleScrollTo('conditions')}
+                            className="text-left py-1 hover:text-purple-700"
+                        >
+                            300+ Conditions
+                        </button>
+                        <button
+                            onClick={() => handleScrollTo('how-it-works')}
+                            className="text-left py-1 hover:text-purple-700"
+                        >
+                            How It Works
+                        </button>
+                        <button
+                            onClick={() => handleScrollTo('app')}
+                            className="text-left py-1 hover:text-purple-700"
+                        >
+                            Mobile App
+                        </button>
+                        <a
+                            href="/consultation"
+                            className="text-left py-1 hover:text-purple-700"
+                        >
+                            Doctor Consultation
+                        </a>
+                        <a
+                            href="/services"
+                            className="text-left py-1 hover:text-purple-700"
+                        >
+                            All Services
+                        </a>
+                        <a
+                            href="/consultation"
+                            className="text-left py-1 font-semibold text-purple-700"
+                        >
+                            Login / Patient Portal
+                        </a>
+                    </div>
+                </div>
+            )}
+        </header>
     );
 }

@@ -173,19 +173,22 @@ const RealChatBot: React.FC = () => {
             }
         >
             <Await resolve={role}>
-                {(role) => (
-                    <div className="flex flex-col min-h-screen bg-gray-100">
-                        <Navbar
-                            isPatient={role === "patient" || role === "unknown"}
-                            isDoctor={role === "doctor" || role === "unknown"}
-                            isLogout={role !== "unknown"}
-                        />
-                        <main className="flex-grow flex justify-center items-center p-4">
-                            <ChatBot />
-                        </main>
-                        <Copyright />
-                    </div>
-                )}
+                {(resolvedData: any) => {
+                    const resolvedRole = typeof resolvedData === "object" && resolvedData !== null ? resolvedData.role : resolvedData;
+                    return (
+                        <div className="flex flex-col min-h-screen bg-gray-100">
+                            <Navbar
+                                isPatient={resolvedRole === "patient" || resolvedRole === "unknown"}
+                                isDoctor={resolvedRole === "doctor" || resolvedRole === "unknown"}
+                                isLogout={resolvedRole === "patient" || resolvedRole === "doctor"}
+                            />
+                            <main className="flex-grow flex justify-center items-center p-4">
+                                <ChatBot />
+                            </main>
+                            <Copyright />
+                        </div>
+                    );
+                }}
             </Await>
         </Suspense>
     );

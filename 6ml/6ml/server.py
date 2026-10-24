@@ -11,9 +11,14 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "http://localhost",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "http://localhost:8000",
-    "https://shaswarakshageekssquad.netlify.app"  # Added deployed frontend URL
+    "http://127.0.0.1:8000",
+    "https://shaswarakshageekssquad.netlify.app"
 ]
 
 app.add_middleware(
@@ -23,6 +28,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+@app.get("/health")
+def health():
+    return {"status": "healthy", "service": "SwaRaksha ML Prediction Engine"}
 
 # Load the label encoder and feature names
 with open('label_encoder.pkl', 'rb') as f:
